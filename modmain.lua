@@ -64,11 +64,16 @@ local function Say(message)
     end
 end
 
-local bosses_warning = {
-    deerclops = GetModConfigData("deerclops_warning") and {},
-    bearger = GetModConfigData("bearger_warning") and {},
-    twister = GetModConfigData("twister_warning") and {}
-}
+local function add_record_table(main_table, name)
+    if GetModConfigData(name.."_warning") then
+        main_table[name] = {}
+    end
+end
+
+local bosses_warning = {}
+add_record_table(bosses_warning, "deerclops")
+add_record_table(bosses_warning, "bearger")
+add_record_table(bosses_warning, "twister")
 
 local function DoBossWarning(boss, level, times)
     local time = level == 4 and times == 3 and 3
@@ -85,37 +90,34 @@ local function reset_times(record_table, current_level)
 end
 
 for boss, record_table in pairs(bosses_warning) do
-    if record_table then
-        for i = 2, 4 do -- Level one is useless I guess.. (longer than 90s)
-            local level = tostring(i)
-            AddPrefabPostInit(boss.."warning_lvl"..level, function(inst)
-                reset_times(record_table, level)
-                if not record_table[level] then
-                    record_table[level] = 0
-                end
-                record_table[level] = record_table[level] + 1
-                if record_table[level] > level - 1 then
-                    record_table[level] = 1
-                end
-                DoBossWarning(boss, i, record_table[level])
+    for i = 2, 4 do -- Level one is useless I guess.. (longer than 90s)
+        local level = tostring(i)
+        AddPrefabPostInit(boss.."warning_lvl"..level, function()
+            reset_times(record_table, level)
+            if not record_table[level] then
+                record_table[level] = 0
+            end
+            record_table[level] = record_table[level] + 1
+            if record_table[level] > level - 1 then
+                record_table[level] = 1
+            end
+            DoBossWarning(boss, i, record_table[level])
 
-                -- Reset the times, if no warnings any more
-                if record_table.task then
-                    record_table.task:Cancel()
-                end
-                record_table.task = scheduler:ExecuteInTime(60, function()
-                    reset_times(record_table)
-                    record_table.task = nil
-                end)
+            -- Reset the times, if no warnings any more
+            if record_table.task then
+                record_table.task:Cancel()
+            end
+            record_table.task = scheduler:ExecuteInTime(60, function()
+                reset_times(record_table)
+                record_table.task = nil
             end)
-        end
+        end)
     end
 end
 
-local hounded_warning = {
-    hound = GetModConfigData("hound_warning") and {},
-    worm = GetModConfigData("worm_warning") and {}
-}
+local hounded_warning = {}
+add_record_table(hounded_warning, "hound")
+add_record_table(hounded_warning, "worm")
 
 local function DoHoundedWarning(attacker, time)
     Say(subfmt(AW_STRINGS.HOUNDED._format, {attacker = AW_STRINGS.HOUNDED[attacker] or attacker, time = time}))
@@ -126,11 +128,11 @@ local function start_hounded_task(attacker, record_table)
 
     if record_table.last_announce_time == nil
         or _G.GetTime() - record_table.last_announce_time > ANNOUNCEMENT_COOLDOWN then
-            
+
         DoHoundedWarning(attacker, record_table.time)
     end
     record_table.last_announce_time = _G.GetTime()
-    
+
     local next_warning_delay = 15
     if record_table.time == 15 then
         record_table.time = record_table.time - 12
@@ -155,26 +157,23 @@ local function start_hounded_task(attacker, record_table)
 end
 
 for attacker, record_table in pairs(hounded_warning) do
-    if record_table then
-        for i = 2, 4 do
-            local level = tostring(i)
-            AddPrefabPostInit(attacker.."warning_lvl"..level, function(inst)
-                if record_table.task == nil
-                    or i > record_table.last_level then
+    for i = 2, 4 do
+        local level = tostring(i)
+        AddPrefabPostInit(attacker.."warning_lvl"..level, function()
+            if record_table.task == nil
+                or i > record_table.last_level then
 
-                    record_table.time = (5 - i) * 30
-                    start_hounded_task(attacker, record_table)
-                end
-                record_table.last_level = i
-            end)
-        end
+                record_table.time = (5 - i) * 30
+                start_hounded_task(attacker, record_table)
+            end
+            record_table.last_level = i
+        end)
     end
 end
 
-local antlion_warning = {
-    sinkhole = GetModConfigData("sinkhole_warning") and {},
-    cavein = GetModConfigData("cavein_warning") and {}
-}
+local antlion_warning = {}
+add_record_table(antlion_warning, "sinkhole")
+add_record_table(antlion_warning, "cavein")
 
 local antlion_warning_prefabs = {
     sinkhole = {"sinkhole_warn_fx_1", "sinkhole_warn_fx_2", "sinkhole_warn_fx_3"},
@@ -182,16 +181,14 @@ local antlion_warning_prefabs = {
 }
 
 for trouble, record_table in pairs(antlion_warning) do
-    if record_table then
-        for _, prefab in ipairs(antlion_warning_prefabs[trouble]) do
-            AddPrefabPostInit(prefab, function(inst)
-                if record_table.task then return end
-                Say(subfmt(AW_STRINGS.ANTLION._format, {trouble = AW_STRINGS.ANTLION[trouble] or trouble}))
-                record_table.task = scheduler:ExecuteInTime(30, function()
-                    record_table.task = nil
-                end)
+    for _, prefab in ipairs(antlion_warning_prefabs[trouble]) do
+        AddPrefabPostInit(prefab, function()
+            if record_table.task then return end
+            Say(subfmt(AW_STRINGS.ANTLION._format, {trouble = AW_STRINGS.ANTLION[trouble] or trouble}))
+            record_table.task = scheduler:ExecuteInTime(30, function()
+                record_table.task = nil
             end)
-        end
+        end)
     end
 end
 
