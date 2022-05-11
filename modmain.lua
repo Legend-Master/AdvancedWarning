@@ -8,6 +8,7 @@ if language == "auto" then
         zh = "chinese_s",
         chs = "chinese_s",
         pt = "portuguese_br",
+        es = "spanish",
         en = "english",
     }
     language = langs[_G.LanguageTranslator.defaultlang] or "english"
