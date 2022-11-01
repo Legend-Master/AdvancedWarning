@@ -44,7 +44,19 @@ if display_form == "eventannouncer" then
     local CreateOverlays = PlayerHud.CreateOverlays
     function PlayerHud:CreateOverlays(owner, ...)
         CreateOverlays(self, owner, ...)
-        self.eventannouncer = self.eventannouncer:AddChild(EventAnnouncer(owner))
+        if not self.eventannouncer:is_a(EventAnnouncer) then
+            self.eventannouncer = self.eventannouncer:AddChild(EventAnnouncer(owner))
+        end
+    end
+
+    -- Fix AnnouncementWidget mutating original color table
+    local AnnouncementWidget = require("widgets/announcementwidget")
+    local SetTextColour = AnnouncementWidget.SetTextColour
+    function AnnouncementWidget:SetTextColour(r, g, b, a, ...)
+        if type(r) == "table" then
+            r = _G.shallowcopy(r)
+        end
+        return SetTextColour(self, r, g, b, a, ...)
     end
 end
 
