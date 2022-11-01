@@ -1,7 +1,7 @@
 name = "Advanced Warning"
 description = "Feel free to listen to your own music :)"
 author = "Tony"
-version = "2.0.6"
+version = "2.0.7"
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 dst_compatible = true
