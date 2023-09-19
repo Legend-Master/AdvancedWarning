@@ -1,7 +1,7 @@
 name = "Advanced Warning"
 description = "Feel free to listen to your own music :)"
 author = "Tony"
-version = "2.0.7"
+version = "2.0.8"
 icon_atlas = "modicon.xml"
 icon = "modicon.tex"
 dst_compatible = true
@@ -37,6 +37,7 @@ configuration_options =
             {description = "English", data = "english", hover = "English"},
             {description = "Español", data = "spanish", hover = "Spanish"},
             {description = "Português", data = "portuguese_br", hover = "Portuguese BR"},
+            {description = "Українська", data = "ukrainian", hover = "Ukrainian"},
             {description = "简体中文", data = "chinese_s", hover = "Simplified Chinese"},
         },
         default = "auto",

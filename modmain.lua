@@ -8,6 +8,7 @@ if language == "auto" then
         zh = "chinese_s",
         chs = "chinese_s",
         pt = "portuguese_br",
+        ua = "ukrainian", -- Ukrainian Language Pack (https://steamcommunity.com/sharedfiles/filedetails/?id=2877137784) is using this even though technically it's ISO 639-1 code is uk
         es = "spanish",
         en = "english",
     }
